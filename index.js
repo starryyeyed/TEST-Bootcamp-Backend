@@ -11,7 +11,7 @@ const sess = {
 };
 
 // Set this equal to your MongoDB URI
-const uri = '';
+const uri = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0';
 const client = new MongoClient(uri);
 
 // Change this if you're using a different name
@@ -40,12 +40,25 @@ app.get('/', (req, res) => {
 
 // Exc. 3.1: Handle POST request to /login route
 app.post('/login', async (req, res) => {
-  // TODO
+  const{username, password} = req.body;
+  const users = await db.collection('users').findOne({username, password})
+  if (users) {
+    req.session.username = user.username;
+    res.redirect('/home.html')
+  }
+  else {
+    res.sendStatus(404);
+  }
 });
 
 // Exc. 3.2: Render the username
 app.get('/user', (req, res) => {
-  // TODO
+  if (req.session.username) {
+    res.send(req.session.username);
+  }
+  else {
+    res.status(401).send('Not logged in');
+  }
 });
 
 // Runs the server
